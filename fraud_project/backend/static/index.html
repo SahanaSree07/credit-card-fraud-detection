@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fraud Watch — Credit Card Fraud Detection</title>
+<link rel="stylesheet" href="/static/style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body>
+
+<div class="app">
+
+  <aside class="rail">
+    <div class="rail-brand">
+      <span class="rail-brand-mark">FW</span>
+      <span class="rail-brand-name">Fraud Watch</span>
+    </div>
+    <nav class="rail-nav">
+      <button class="rail-btn is-active" data-view="dashboard">
+        <span class="rail-btn-label">Dashboard</span>
+      </button>
+      <button class="rail-btn" data-view="predict">
+        <span class="rail-btn-label">Check a transaction</span>
+      </button>
+      <button class="rail-btn" data-view="history">
+        <span class="rail-btn-label">Prediction log</span>
+      </button>
+    </nav>
+    <div class="rail-model">
+      <div class="rail-model-label">Serving model</div>
+      <div class="rail-model-name" id="model-name">—</div>
+    </div>
+  </aside>
+
+  <main class="content">
+
+    <!-- DASHBOARD -->
+    <section class="view is-active" id="view-dashboard">
+      <header class="view-head">
+        <h1>Model overview</h1>
+        <p>How the trained fraud-detection model performs, and what's come through the API so far.</p>
+      </header>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-rows">—</div>
+          <div class="stat-label">Transactions in training data</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-fraud-pct">—</div>
+          <div class="stat-label">Fraud rate in training data</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-f1">—</div>
+          <div class="stat-label">Best model F1-score</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-logged">—</div>
+          <div class="stat-label">Predictions logged this session</div>
+        </div>
+      </div>
+
+      <div class="panel-grid">
+        <div class="panel">
+          <h2>Model comparison</h2>
+          <canvas id="chart-models" height="220"></canvas>
+        </div>
+        <div class="panel">
+          <h2>Class balance</h2>
+          <canvas id="chart-balance" height="220"></canvas>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>All models — detailed metrics</h2>
+        <div class="table-wrap">
+          <table id="table-models">
+            <thead>
+              <tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th><th>ROC-AUC</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- PREDICT -->
+    <section class="view" id="view-predict">
+      <header class="view-head">
+        <h1>Check a transaction</h1>
+        <p>Enter an amount and time, or load a real transaction from the dataset — the 28 anonymized features (V1–V28) can't be typed by hand, so a quick check fills them from a reference transaction while a full check lets you inspect and submit exact values.</p>
+      </header>
+
+      <div class="predict-layout">
+        <div class="panel">
+          <h2>Quick check</h2>
+          <p class="panel-note">Fastest way to try the model. V1–V28 are drawn from a random real transaction; only Amount and Time come from you.</p>
+          <form id="quick-form">
+            <label>
+              Transaction amount ($)
+              <input type="number" id="quick-amount" step="0.01" value="149.62" required>
+            </label>
+            <label>
+              Time (seconds since first transaction in dataset)
+              <input type="number" id="quick-time" step="1" value="40000" required>
+            </label>
+            <button type="submit" class="btn-primary">Run check</button>
+          </form>
+        </div>
+
+        <div class="panel">
+          <h2>Load a real transaction</h2>
+          <p class="panel-note">Pulls one random transaction (with its true label) from the dataset, so you can compare the model's call against ground truth.</p>
+          <button id="btn-sample" class="btn-secondary">Load random transaction</button>
+          <div id="sample-preview" class="sample-preview"></div>
+          <button id="btn-sample-predict" class="btn-primary" style="display:none;">Run full check on this transaction</button>
+        </div>
+      </div>
+
+      <div class="panel result-panel" id="result-panel" style="display:none;">
+        <h2>Result</h2>
+        <div class="result-body">
+          <div class="result-verdict" id="result-verdict">—</div>
+          <div class="result-detail">
+            <div class="result-row"><span>Fraud probability</span><strong id="result-proba">—</strong></div>
+            <div class="result-row" id="result-actual-row" style="display:none;"><span>Actual label</span><strong id="result-actual">—</strong></div>
+            <div class="result-row"><span>Model used</span><strong id="result-model">—</strong></div>
+          </div>
+        </div>
+        <p class="result-note" id="result-note"></p>
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section class="view" id="view-history">
+      <header class="view-head">
+        <h1>Prediction log</h1>
+        <p>Every prediction made through this app, stored in the SQLite database.</p>
+      </header>
+
+      <div class="panel">
+        <div class="panel-toolbar">
+          <button id="btn-refresh-history" class="btn-secondary">Refresh</button>
+          <button id="btn-clear-history" class="btn-danger">Clear log</button>
+        </div>
+        <div class="table-wrap">
+          <table id="table-history">
+            <thead>
+              <tr><th>Time logged</th><th>Amount</th><th>Prediction</th><th>Probability</th><th>Actual</th><th>Source</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="empty-note" id="history-empty" style="display:none;">No predictions logged yet — try one from the "Check a transaction" tab.</p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

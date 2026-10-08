@@ -1,0 +1,7 @@
+{
+  "n_rows": 500,
+  "n_cols": 31,
+  "n_legit": 484,
+  "n_fraud": 16,
+  "fraud_pct": 3.2
+}

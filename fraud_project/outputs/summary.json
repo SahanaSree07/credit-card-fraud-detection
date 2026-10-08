@@ -1,0 +1,13 @@
+{
+  "best_model": "K-Nearest Neighbors",
+  "metrics": {
+    "Model": "K-Nearest Neighbors",
+    "Accuracy": 0.584,
+    "Precision": 0.02,
+    "Recall": 0.25,
+    "F1-Score": 0.037037037037037035,
+    "ROC-AUC": 0.30165289256198347,
+    "Avg Precision (PR-AUC)": 0.029,
+    "CV F1 (5-fold)": 0.0
+  }
+}

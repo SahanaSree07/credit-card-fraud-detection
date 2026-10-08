@@ -1,0 +1,118 @@
+======================================================================
+STEP 1: LOAD DATA
+======================================================================
+Shape: (500, 31)
+Columns: ['Time', 'V1', 'V2', 'V3', 'V4', 'V5', 'V6', 'V7', 'V8', 'V9', 'V10', 'V11', 'V12', 'V13', 'V14', 'V15', 'V16', 'V17', 'V18', 'V19', 'V20', 'V21', 'V22', 'V23', 'V24', 'V25', 'V26', 'V27', 'V28', 'Amount', 'Class']
+Missing values total: 0
+Duplicate rows: 0
+
+Class distribution:
+Class
+0    484
+1     16
+Name: count, dtype: int64
+Fraud percentage: 3.200%
+
+======================================================================
+STEP 2: EXPLORATORY DATA ANALYSIS
+======================================================================
+Top features correlated with fraud:
+Amount    0.158378
+V7       -0.086469
+V4       -0.076911
+V19      -0.069038
+V11      -0.068579
+V20       0.066037
+V14       0.062125
+Time      0.053629
+V18       0.052140
+V17       0.051645
+Name: Class, dtype: float64
+
+======================================================================
+STEP 3: PREPROCESSING
+======================================================================
+Train shape: (375, 30), Test shape: (125, 30)
+Train fraud count: 12 | Test fraud count: 4
+
+======================================================================
+STEP 4: HANDLING CLASS IMBALANCE (SMOTE oversampling)
+======================================================================
+Before SMOTE -> legit: 363, fraud: 12
+After  SMOTE -> legit: 363, fraud: 363
+
+======================================================================
+STEP 5: MODEL TRAINING
+======================================================================
+
+Training: Logistic Regression
+  Accuracy=0.8400  Precision=0.0000  Recall=0.0000  F1=0.0000  ROC-AUC=0.4194
+  Confusion Matrix:
+[[105  16]
+ [  4   0]]
+
+Training: K-Nearest Neighbors
+  Accuracy=0.5840  Precision=0.0200  Recall=0.2500  F1=0.0370  ROC-AUC=0.3017
+  Confusion Matrix:
+[[72 49]
+ [ 3  1]]
+
+Training: Support Vector Machine
+  Accuracy=0.9680  Precision=0.0000  Recall=0.0000  F1=0.0000  ROC-AUC=0.3967
+  Confusion Matrix:
+[[121   0]
+ [  4   0]]
+
+Training: Random Forest
+  Accuracy=0.9600  Precision=0.0000  Recall=0.0000  F1=0.0000  ROC-AUC=0.3264
+  Confusion Matrix:
+[[120   1]
+ [  4   0]]
+
+Training: Gradient Boosting
+  Accuracy=0.9520  Precision=0.0000  Recall=0.0000  F1=0.0000  ROC-AUC=0.2913
+  Confusion Matrix:
+[[119   2]
+ [  4   0]]
+
+Training: Neural Network (MLP)
+  Accuracy=0.9520  Precision=0.0000  Recall=0.0000  F1=0.0000  ROC-AUC=0.2955
+  Confusion Matrix:
+[[119   2]
+ [  4   0]]
+
+======================================================================
+MODEL COMPARISON TABLE (sorted by F1-Score)
+======================================================================
+                 Model  Accuracy  Precision  Recall  F1-Score  ROC-AUC  Avg Precision (PR-AUC)  CV F1 (5-fold)
+   K-Nearest Neighbors     0.584       0.02    0.25  0.037037 0.301653                0.029000             0.0
+   Logistic Regression     0.840       0.00    0.00  0.000000 0.419421                0.032918             0.0
+Support Vector Machine     0.968       0.00    0.00  0.000000 0.396694                0.031466             0.0
+         Random Forest     0.960       0.00    0.00  0.000000 0.326446                0.028360             0.0
+     Gradient Boosting     0.952       0.00    0.00  0.000000 0.291322                0.027000             0.0
+  Neural Network (MLP)     0.952       0.00    0.00  0.000000 0.295455                0.026974             0.0
+
+======================================================================
+STEP 6: VISUALIZING MODEL COMPARISON
+======================================================================
+
+======================================================================
+STEP 7: SELECT BEST MODEL
+======================================================================
+Best model selected: K-Nearest Neighbors
+Metrics: {'Model': 'K-Nearest Neighbors', 'Accuracy': 0.584, 'Precision': 0.02, 'Recall': 0.25, 'F1-Score': 0.037037037037037035, 'ROC-AUC': 0.30165289256198347, 'Avg Precision (PR-AUC)': 0.029, 'CV F1 (5-fold)': 0.0}
+
+Classification Report:
+              precision    recall  f1-score   support
+
+       Legit       0.96      0.60      0.73       121
+       Fraud       0.02      0.25      0.04         4
+
+    accuracy                           0.58       125
+   macro avg       0.49      0.42      0.39       125
+weighted avg       0.93      0.58      0.71       125
+
+
+======================================================================
+PIPELINE COMPLETE. Outputs saved to ../outputs and ../models
+======================================================================
